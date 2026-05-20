@@ -40,34 +40,33 @@ export default function VideosPage() {
   }, [])
 
   async function handleSave(form, file) {
-  try {
-    if (editing) {
-      const formData = new FormData()
-      Object.entries(form).forEach(([k, v]) => formData.append(k, v))
-      if (file) formData.append('file', file)
-      const res = await api.put(`/api/videos/${editing.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      setVideos(prev =>
-        prev.map(v => v.id === editing.id ? res.data.data : v)
-      )
-      showToast('Video updated successfully')
-    } else {
-      const formData = new FormData()
-      Object.entries(form).forEach(([k, v]) => formData.append(k, v))
-      if (file) formData.append('file', file)
-      const res = await api.post('/api/videos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      setVideos(prev => [...prev, res.data.data])
-      showToast('Video uploaded successfully')
+    try {
+      if (editing) {
+        const formData = new FormData()
+        Object.entries(form).forEach(([k, v]) => formData.append(k, v))
+        if (file) formData.append('file', file)
+        const res = await api.put(`/api/videos/${editing.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        setVideos(prev =>
+          prev.map(v => v.id === editing.id ? res.data.data : v)
+        )
+      } else {
+        const formData = new FormData()
+        Object.entries(form).forEach(([k, v]) => formData.append(k, v))
+        if (file) formData.append('file', file)
+        const res = await api.post('/api/videos', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        setVideos(prev => [...prev, res.data.data])
+      }
+      showToast(editing ? 'Video updated successfully' : 'Video uploaded successfully')
+      setShowForm(false)
+      setEditing(null)
+    } catch {
+      showToast('Failed to save video', 'error')
     }
-    setShowForm(false)
-    setEditing(null)
-  } catch {
-    showToast('Failed to save video', 'error')
   }
-}
 
   async function handleToggleActive(video) {
   try {

@@ -37,27 +37,25 @@ export default function SurveyPage() {
     load()
   }, [])
 
- async function handleSave(form) {
-  try {
-    if (editing) {
-      const res = await api.put(`/api/questions/${editing.id}`, form)
-      setQuestions(prev =>
-        prev.map(q => q.id === editing.id ? res.data.data : q)
-      )
-      showToast('Question updated')
-    } else {
-      const res = await api.post('/api/questions', form)
-      // Reload full list to get correct order
-      const listRes = await api.get('/api/questions')
-      setQuestions(listRes.data.data.questions)
-      showToast('Question added')
+  async function handleSave(form) {
+    try {
+      if (editing) {
+        const res = await api.put(`/api/questions/${editing.id}`, form)
+        setQuestions(prev =>
+          prev.map(q => q.id === editing.id ? res.data.data : q)
+        )
+      } else {
+        await api.post('/api/questions', form)
+        const listRes = await api.get('/api/questions')
+        setQuestions(listRes.data.data.questions)
+      }
+      showToast(editing ? 'Question updated successfully' : 'Question added successfully')
+      setShowForm(false)
+      setEditing(null)
+    } catch {
+      showToast('Failed to save question', 'error')
     }
-    setShowForm(false)
-    setEditing(null)
-  } catch {
-    showToast('Failed to save question', 'error')
   }
-}
 
   function handleEdit(q) {
     setEditing(q)

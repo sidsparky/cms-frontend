@@ -52,19 +52,16 @@ export default function ContentPage() {
   }
 
   async function handleSave() {
-  setSaving(true)
-  try {
-    // Send each screen's updates individually
-    // For simplicity we send the full values object
-    // The backend picks out the screenId
-    await api.put('/api/content', values)
-    showToast('App text saved successfully')
-  } catch {
-    showToast('Failed to save changes', 'error')
-  } finally {
-    setSaving(false)
+    setSaving(true)
+    try {
+      await api.put('/api/content', values)
+      showToast('App text saved successfully')
+    } catch {
+      showToast('Failed to save changes', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
-}
 
   return (
     <CMSLayout title="App Text Editor">

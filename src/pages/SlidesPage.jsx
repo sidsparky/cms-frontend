@@ -84,55 +84,51 @@ export default function SlidesPage() {
   const currentSlides = slides[department] || []
 
   async function handleSave(form) {
-  try {
-    const formData = new FormData()
-    formData.append('department',   department)
-    formData.append('title',        form.title)
-    formData.append('body',         form.body)
-    formData.append('subtitleText', form.subtitleText || '')
-    formData.append('buttonLabel',  form.buttonLabel  || 'Next')
-    formData.append('buttonAction', form.buttonAction || 'next_slide')
-    formData.append('order',        form.order || currentSlides.length + 1)
-
-    // Append new image files
-    form.images?.forEach(img => {
-      if (img.file) formData.append('images', img.file)
-    })
-
-    // Append new audio files
-    form.audio?.forEach(a => {
-      if (a.file) formData.append('audio', a.file)
-    })
-
-    if (editing) {
-      const res = await api.put(`/api/slides/${editing.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    try {
+      const formData = new FormData()
+      formData.append('department',   department)
+      formData.append('title',        form.title)
+      formData.append('body',         form.body)
+      formData.append('subtitleText', form.subtitleText || '')
+      formData.append('buttonLabel',  form.buttonLabel  || 'Next')
+      formData.append('buttonAction', form.buttonAction || 'next_slide')
+      formData.append('order',        form.order || currentSlides.length + 1)
+    
+      form.images?.forEach(img => {
+        if (img.file) formData.append('images', img.file)
       })
-      setSlides(prev => ({
-        ...prev,
-        [department]: prev[department].map(s =>
-          s.id === editing.id ? res.data.data : s
-        )
-      }))
-      showToast('Slide updated')
-    } else {
-      const res = await api.post('/api/slides', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    
+      form.audio?.forEach(a => {
+        if (a.file) formData.append('audio', a.file)
       })
-      setSlides(prev => ({
-        ...prev,
-        [department]: [...(prev[department] || []), res.data.data]
-      }))
-      showToast('Slide added')
+    
+      if (editing) {
+        const res = await api.put(`/api/slides/${editing.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        setSlides(prev => ({
+          ...prev,
+          [department]: prev[department].map(s =>
+            s.id === editing.id ? res.data.data : s
+          )
+        }))
+      } else {
+        const res = await api.post('/api/slides', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        setSlides(prev => ({
+          ...prev,
+          [department]: [...(prev[department] || []), res.data.data]
+        }))
+      }
+      showToast(editing ? 'Slide updated successfully' : 'Slide added successfully')
+      setShowForm(false)
+      setEditing(null)
+      setPreview(null)
+    } catch {
+      showToast('Failed to save slide', 'error')
     }
-
-    setShowForm(false)
-    setEditing(null)
-    setPreview(null)
-  } catch {
-    showToast('Failed to save slide', 'error')
   }
-}
 
   async function handleDelete() {
   try {
